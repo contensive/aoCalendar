@@ -1285,7 +1285,7 @@ Private Function GetForm_Month(calendarId As Long) As String
     Dim endDate As Date
     Dim TickData As Long
     Dim TickLoop As Long
-    Dim cs As Long
+    Dim CS As Long
     Dim c As FastStringClass
     Dim tabs As FastStringClass
     Dim linkHref As String
@@ -1304,7 +1304,7 @@ Private Function GetForm_Month(calendarId As Long) As String
         DateLast = DateAdd("m", -1, GlobalDate)
         s.Add GetForm_Header(MonthName(GlobalMonth) & ", " & GlobalYear, FormMonth, DateLast, DateNext)
         '
-        s.Add cr1 & "<table BORDER=""1"" CELLSPACING=""0"" CELLPADDING=""0"" bgcolor=""#ffffff"" width=""100%"">"
+        s.Add cr1 & "<table class=""CalendarTable"" BORDER=""1"" CELLSPACING=""0"" CELLPADDING=""0"" bgcolor=""#ffffff"" width=""100%"">"
         '
         ' ----- spacers with day names
         '
@@ -1312,7 +1312,7 @@ Private Function GetForm_Month(calendarId As Long) As String
         CellClose = "" _
             & cr2 & "<br /><img src=""images/spacer.gif"" width=""70"" height=""1"">" _
             & cr1 & "</td>"
-        s.Add cr1 & "<tr>"
+        s.Add cr1 & "<tr class=""CalendarDayRow"">"
         s.Add cr1 & "<TD class=""CalendarDay"" width=""1%"" align=""center"">wk<BR>&nbsp;view&nbsp;</td>"
         s.Add CellOpen & "Sun" & CellClose
         s.Add CellOpen & "Mon" & CellClose
@@ -1337,12 +1337,12 @@ Private Function GetForm_Month(calendarId As Long) As String
         endDate = GetNextMonth(startDate) - 1
         EventCnt = 0
         TickData = GetTickCount
-        cs = OpenCSEvents2(startDate, endDate)
-        If Main.IsCSOK(cs) Then
-            Events = Main.GetCSRows(cs)
+        CS = OpenCSEvents2(startDate, endDate)
+        If Main.IsCSOK(CS) Then
+            Events = Main.GetCSRows(CS)
             EventCnt = UBound(Events, 2) + 1
         End If
-        Call Main.CloseCS(cs)
+        Call Main.CloseCS(CS)
         VerboseMessage = VerboseMessage & "<div>GetForm_Month, Data time = " & (GetTickCount - TickData) & "</div>"
         '
         EditLinkTemplate = ""
@@ -1360,9 +1360,9 @@ Private Function GetForm_Month(calendarId As Long) As String
             '
             If ColumnPointer = 0 Then
                 Link = RequestLink & rnTabNumber & "=" & FormWeek & "&" & RequestNameTargetdate & "=" & CellDate
-                s.Add "<TR>"
+                s.Add "<TR class=""CalendarCellRow"">"
                 's.add  "<TD class=""ccCalendarMonth"" valign=""middle"">"
-                s.Add "<TD style=""text-align: center;vertical-align:middle;height:40px;"" valign=""middle"">"
+                s.Add "<TD class=""CalendarRowSelect"" style=""text-align: center;vertical-align:middle;height:40px;"" valign=""middle"">"
                 s.Add "<a href=""javascript: document.location='" & Link & "';""><img src=""/ccLib/images/CalendarForwardButton.gif"" width=""16"" HEIGHT=""15"" border=""0"" alt=""Week Starting " & CellDate & """ valign=""middle""></a>"
                 's.Add "<br><img src=""/ccLib/images/spacer.gif"" width=""1"" HEIGHT=""40"">"
                 s.Add "</TD>"
@@ -1372,6 +1372,7 @@ Private Function GetForm_Month(calendarId As Long) As String
                 ' Not in current month, set a blank cell
                 '
                 c.Add "&nbsp;"
+                s.Add "<TD class=""CalendarCellBlank"" valign=""top"">" & c.Text & "</TD>"
             Else
                 '
                 ' Create cell and add the day number in the corner
@@ -1401,9 +1402,9 @@ Private Function GetForm_Month(calendarId As Long) As String
                     linkHref = "href=""" & Link & """"
                 End If
                 '
-                c.Add cr1 & "<table BORDER=""0"" CELLSPACING=""0"" CELLPADDING=""1"" width=""100%"">"
+                c.Add cr1 & "<table class=""CalendarCellTable"" BORDER=""0"" CELLSPACING=""0"" CELLPADDING=""1"" width=""100%"">"
                 c.Add cr2 & "<tr>"
-                c.Add cr3 & "<td align=""center"" width=""10%"" class=""" & dateStyle & """>"
+                c.Add cr3 & "<td align=""center"" width=""10%"" class=""CalendarCellCorner " & dateStyle & """>"
                 c.Add cr4 & "<a " & linkHref & """>" & CornerBox & "</a>"
                 'c.Add cr4 & "<a " & linkHref & """><span class=""CalendarDates"">" & CornerBox & "</span></a>"
                 c.Add cr3 & "</td>"
@@ -1416,8 +1417,8 @@ Private Function GetForm_Month(calendarId As Long) As String
                 If AllowAdd Then
                     c.Add GetAddLink(adminUrl, CalendarEventsContentID, "StartDate", Int(CellDate), "CalendarHolder", CStr(calendarId), "EndDate", Int(CellDate))
                 End If
+                s.Add "<TD class=""CalendarCell"" valign=""top"">" & c.Text & "</TD>"
             End If
-            s.Add "<TD valign=""top"">" & c.Text & "</TD>"
             '
             '---/ If we're at the endof a row then close it up
             '
@@ -1627,7 +1628,7 @@ Private Function GetForm_Week(CalendarEventsContentID As Long) As String
     Dim stream As String
     Dim DateValue As Date
     Dim DatePointer As Long
-    Dim cs As Long
+    Dim CS As Long
     Dim startDate As Date
     Dim endDate As Date
     Dim Events() As Variant
@@ -1637,12 +1638,12 @@ Private Function GetForm_Week(CalendarEventsContentID As Long) As String
     startDate = DateValue
     endDate = DateAdd("d", 7, startDate)
     EventCnt = 0
-    cs = OpenCSEvents2(startDate, endDate)
-    If Main.IsCSOK(cs) Then
-        Events = Main.GetCSRows(cs)
+    CS = OpenCSEvents2(startDate, endDate)
+    If Main.IsCSOK(CS) Then
+        Events = Main.GetCSRows(CS)
         EventCnt = UBound(Events, 2) + 1
     End If
-    Call Main.CloseCS(cs)
+    Call Main.CloseCS(CS)
     '
     stream = stream & GetForm_Header("Week of " & GlobalDate, FormWeek, GlobalDate - 7, GlobalDate + 7)
     For DatePointer = 0 To 6
@@ -2120,7 +2121,7 @@ Private Sub HandleInternalError(MethodName As String, ErrDescription As String)
 Private Sub UpgradeCalendarEvents()
     On Error GoTo ErrorTrap
     '
-    Dim cs As Long
+    Dim CS As Long
     Dim cs2 As Long
     Dim calendarEventId As Long
     Dim calendarId As Long
@@ -2168,8 +2169,8 @@ Private Sub UpgradeCalendarEvents()
         End If
         '
         If CurrentVersion < "1.0.48" Then
-                cs = Main.OpenCSSQL("default", "select e.id from ccCalendarEvents e left join ccCalendarEventRules r on r.calendareventId=e.id where r.id is null")
-                If Main.IsCSOK(cs) Then
+                CS = Main.OpenCSSQL("default", "select e.id from ccCalendarEvents e left join ccCalendarEventRules r on r.calendareventId=e.id where r.id is null")
+                If Main.IsCSOK(CS) Then
                     cs2 = Main.InsertCSRecord("calendars")
                     If Main.IsCSOK(cs2) Then
                         Call Main.SetCS(cs2, "name", "Hidden Calendar Events")
@@ -2177,15 +2178,15 @@ Private Sub UpgradeCalendarEvents()
                     End If
                     Call Main.CloseCS(cs2)
             If calendarId <> 0 Then
-                    Do While Main.IsCSOK(cs)
-                        calendarEventId = Main.GetCSInteger(cs, "id")
+                    Do While Main.IsCSOK(CS)
+                        calendarEventId = Main.GetCSInteger(CS, "id")
                         cs2 = Main.InsertCSRecord("Calendar Event Rules")
                         If Main.IsCSOK(cs2) Then
                             Call Main.SetCS(cs2, "calendarId", calendarId)
                             Call Main.SetCS(cs2, "calendarEventId", calendarEventId)
                         End If
                         Call Main.CloseCS(cs2)
-                        Call Main.NextCSRecord(cs)
+                        Call Main.NextCSRecord(CS)
                     Loop
             End If
                 End If
@@ -2337,18 +2338,18 @@ ErrorTrap:
 Private Function getFormEdit(calendarId As Long)
     On Error GoTo ErrorTrap
 
-    Dim cs As Long
+    Dim CS As Long
     Dim stream As String
     Dim hdnList As String
     Dim btnList As String
     Dim cnt
     Dim calSelect As String
     '
-    cs = Main.OpenCSSQL("", "select count(*) as cnt from ccCalendars where active<>0")
-    If Main.IsCSOK(cs) Then
-        cnt = Main.GetCSInteger(cs, "cnt")
+    CS = Main.OpenCSSQL("", "select count(*) as cnt from ccCalendars where active<>0")
+    If Main.IsCSOK(CS) Then
+        cnt = Main.GetCSInteger(CS, "cnt")
     End If
-    Call Main.CloseCS(cs)
+    Call Main.CloseCS(CS)
     '
     If cnt = 0 Then
         '
@@ -2358,16 +2359,16 @@ Private Function getFormEdit(calendarId As Long)
         Exit Function
     ElseIf cnt = 1 Then
         '
-        cs = Main.OpenCSSQL("", "select name,id from ccCalendars where active<>0")
-        If Main.IsCSOK(cs) Then
+        CS = Main.OpenCSSQL("", "select name,id from ccCalendars where active<>0")
+        If Main.IsCSOK(CS) Then
             calSelect = "" _
                 & "<br>" _
-                & "<input type=""hidden"" value=""" & Main.GetCSInteger(cs, "id") & """ name=""cals.0.ID"">" _
+                & "<input type=""hidden"" value=""" & Main.GetCSInteger(CS, "id") & """ name=""cals.0.ID"">" _
                 & "<input type=""checkbox"" name=""cals.0"" checked=""checked"" disabled=""disabled"">" _
-                & "<span class=""ccAdminNormal"">" & Main.GetCSText(cs, "name") & "</span>" _
+                & "<span class=""ccAdminNormal"">" & Main.GetCSText(CS, "name") & "</span>" _
                 & ""
         End If
-        Call Main.CloseCS(cs)
+        Call Main.CloseCS(CS)
     Else
         calSelect = Main.GetFormInputCheckList(rnCals, "Calendar Events", eventID, "Calendars", "Calendar Event Rules", "CalendarEventID", "CalendarID")
         '
@@ -2445,7 +2446,7 @@ ErrorTrap:
 Private Sub loadEditForm()
     On Error GoTo ErrorTrap
     
-    Dim cs As Long
+    Dim CS As Long
     '
     ' this should load with or without a button press
     ' load the default calendar event id, set from an "add link", or just 0
@@ -2481,29 +2482,29 @@ Private Sub loadEditForm()
         eventID = Main.GetStreamInteger(rnEventID)
         calStart = Main.GetStreamText(rnCalStart)
         
-        cs = Main.OpenCSContent("Calendar Events", "ID=" & eventID)
-        If Main.CSOK(cs) Then
-            calName = Main.GetCSText(cs, "Name")
-            calStart = Main.GetCSText(cs, "StartDate")
-            calEnd = Main.GetCSText(cs, "EndDate")
-            calURL = Main.GetCSText(cs, "EventLink")
-            calDayCopy = Main.GetCSTextFile(cs, "BriefFileName")
-            calDetailCopy = Main.GetCSTextFile(cs, "CopyFileName")
-            calRepeats = Main.GetCSInteger(cs, "Repeats")
-            calRptStart = Main.GetCSText(cs, "RepeatStart")
-            calRptEnd = Main.GetCSText(cs, "RepeatStart")
-            calPrntID = Main.GetCSInteger(cs, "ParentCalendarEventID")
+        CS = Main.OpenCSContent("Calendar Events", "ID=" & eventID)
+        If Main.CSOK(CS) Then
+            calName = Main.GetCSText(CS, "Name")
+            calStart = Main.GetCSText(CS, "StartDate")
+            calEnd = Main.GetCSText(CS, "EndDate")
+            calURL = Main.GetCSText(CS, "EventLink")
+            calDayCopy = Main.GetCSTextFile(CS, "BriefFileName")
+            calDetailCopy = Main.GetCSTextFile(CS, "CopyFileName")
+            calRepeats = Main.GetCSInteger(CS, "Repeats")
+            calRptStart = Main.GetCSText(CS, "RepeatStart")
+            calRptEnd = Main.GetCSText(CS, "RepeatStart")
+            calPrntID = Main.GetCSInteger(CS, "ParentCalendarEventID")
         End If
-        Call Main.CloseCS(cs)
+        Call Main.CloseCS(CS)
         
         If calPrntID <> 0 Then
-            cs = Main.OpenCSContent("Calendar Events", "ID=" & calPrntID)
-            If Main.CSOK(cs) Then
-                calRepeats = Main.GetCSInteger(cs, "Repeats")
-                calRptStart = Main.GetCSText(cs, "RepeatStart")
-                calRptEnd = Main.GetCSText(cs, "RepeatStart")
+            CS = Main.OpenCSContent("Calendar Events", "ID=" & calPrntID)
+            If Main.CSOK(CS) Then
+                calRepeats = Main.GetCSInteger(CS, "Repeats")
+                calRptStart = Main.GetCSText(CS, "RepeatStart")
+                calRptEnd = Main.GetCSText(CS, "RepeatStart")
             End If
-            Call Main.CloseCS(cs)
+            Call Main.CloseCS(CS)
         End If
         
         calORName = calName
@@ -2526,7 +2527,7 @@ ErrorTrap:
 Private Sub processEditForm()
     On Error GoTo ErrorTrap
     
-    Dim cs As Long
+    Dim CS As Long
     
     If btnValue <> "" Then
         
@@ -2553,48 +2554,48 @@ ErrorTrap:
 Private Sub saveEvent()
     On Error GoTo ErrorTrap
     
-    Dim cs As Long
+    Dim CS As Long
     Dim newEvent As Boolean
     Dim recordID As Long
     Dim srsUpd As Boolean
     Dim Response As String
     
     If eventID = 0 Then
-        cs = Main.InsertCSContent("Calendar Events")
+        CS = Main.InsertCSContent("Calendar Events")
         newEvent = True
     Else
         If btnValue = btnSave Then
-            cs = Main.OpenCSContent("Calendar Events", "ID=" & eventID)
+            CS = Main.OpenCSContent("Calendar Events", "ID=" & eventID)
         ElseIf btnValue = btnSaveSeries Then
             If calPrntID = 0 Then
                 calPrntID = eventID
             End If
-            cs = Main.OpenCSContent("Calendar Events", "ID=" & calPrntID)
+            CS = Main.OpenCSContent("Calendar Events", "ID=" & calPrntID)
             srsUpd = True
         End If
     End If
-    If Main.CSOK(cs) Then
+    If Main.CSOK(CS) Then
         If eventID = 0 Then
-            Call Main.SetCS(cs, "calendarDate", calStart)
+            Call Main.SetCS(CS, "calendarDate", calStart)
         End If
-        Call Main.SetCS(cs, "Name", calName)
+        Call Main.SetCS(CS, "Name", calName)
         If Not srsUpd Then
-            Call Main.SetCS(cs, "StartDate", calStart)
+            Call Main.SetCS(CS, "StartDate", calStart)
             If Trim(calEnd) = "" Then
-                Call Main.SetCS(cs, "EndDate", calStart)
+                Call Main.SetCS(CS, "EndDate", calStart)
             Else
-                Call Main.SetCS(cs, "EndDate", calEnd)
+                Call Main.SetCS(CS, "EndDate", calEnd)
             End If
         Else
-            Call Main.SetCS(cs, "StartCheckOn", "")
+            Call Main.SetCS(CS, "StartCheckOn", "")
         End If
-        Call Main.SetCS(cs, "EventLink", calURL)
-        Call Main.SetCS(cs, "BriefFileName", calDayCopy)
-        Call Main.SetCS(cs, "CopyFileName", calDetailCopy)
-        eventID = Main.GetCSInteger(cs, "ID")
-        Call Main.SaveCSRecord(cs)
+        Call Main.SetCS(CS, "EventLink", calURL)
+        Call Main.SetCS(CS, "BriefFileName", calDayCopy)
+        Call Main.SetCS(CS, "CopyFileName", calDetailCopy)
+        eventID = Main.GetCSInteger(CS, "ID")
+        Call Main.SaveCSRecord(CS)
     End If
-    Call Main.CloseCS(cs)
+    Call Main.CloseCS(CS)
     
     Call Main.ProcessCheckList(rnCals, "Calendar Events", CStr(eventID), "Calendars", "Calendar Event Rules", "CalendarEventID", "CalendarID")
     '
@@ -2606,19 +2607,19 @@ Dim EventRuleExists As Boolean
         '
         ' if they checked the box manually, the rule will already be set. Check for it before creating a new one
         '
-        cs = Main.OpenCSContent("Calendar event rules", "(calendarid=" & calDefaultEventCalendarID & ")and(CalendarEventID=" & eventID & ")", , , , , "id")
-        EventRuleExists = Main.IsCSOK(cs)
-        Call Main.CloseCS(cs)
+        CS = Main.OpenCSContent("Calendar event rules", "(calendarid=" & calDefaultEventCalendarID & ")and(CalendarEventID=" & eventID & ")", , , , , "id")
+        EventRuleExists = Main.IsCSOK(CS)
+        Call Main.CloseCS(CS)
         If Not EventRuleExists Then
             '
             ' new event and no checkbox is checked, force it
             '
-            cs = Main.InsertCSContent("Calendar Event Rules")
-            If Main.IsCSOK(cs) Then
-                Call Main.SetCS(cs, "CalendarID", calDefaultEventCalendarID)
-                Call Main.SetCS(cs, "CalendarEventID", eventID)
+            CS = Main.InsertCSContent("Calendar Event Rules")
+            If Main.IsCSOK(CS) Then
+                Call Main.SetCS(CS, "CalendarID", calDefaultEventCalendarID)
+                Call Main.SetCS(CS, "CalendarEventID", eventID)
             End If
-            Call Main.CloseCS(cs)
+            Call Main.CloseCS(CS)
         End If
     End If
     '
@@ -2628,24 +2629,24 @@ Dim EventRuleExists As Boolean
         Else
             recordID = calPrntID
         End If
-        cs = Main.OpenCSContent("Calendar Events", "ID=" & recordID)
-        If Main.CSOK(cs) Then
-            Call Main.SetCS(cs, "Repeats", calRepeats)
-            Call Main.SetCS(cs, "RepeatStart", calRptStart)
-            Call Main.SetCS(cs, "RepeatEnd", calRptEnd)
-            Call Main.SaveCSRecord(cs)
+        CS = Main.OpenCSContent("Calendar Events", "ID=" & recordID)
+        If Main.CSOK(CS) Then
+            Call Main.SetCS(CS, "Repeats", calRepeats)
+            Call Main.SetCS(CS, "RepeatStart", calRptStart)
+            Call Main.SetCS(CS, "RepeatEnd", calRptEnd)
+            Call Main.SaveCSRecord(CS)
         End If
-        Call Main.CloseCS(cs)
+        Call Main.CloseCS(CS)
     End If
     
     If srsUpd Or newEvent Then
-        cs = Main.OpenCSContent("Add-Ons", "ccGUID='{108F995C-2123-4EAE-84DF-D42A931F073B}'", , , , , "ProcessRunOnce")
-        If Main.CSOK(cs) Then
+        CS = Main.OpenCSContent("Add-Ons", "ccGUID='{108F995C-2123-4EAE-84DF-D42A931F073B}'", , , , , "ProcessRunOnce")
+        If Main.CSOK(CS) Then
             'Response = Main.ExecuteAddon(Main.GetCSInteger(CS, "ID"), Main.GetCSText(CS, "Name"), "", ContextAdmin, "", 0, "", Main.GetCSText(CS, "ccGUID"), 0)
-            Call Main.SetCS(cs, "ProcessRunOnce", 1)
-            Call Main.SaveCSRecord(cs)
+            Call Main.SetCS(CS, "ProcessRunOnce", 1)
+            Call Main.SaveCSRecord(CS)
         End If
-        Call Main.CloseCS(cs)
+        Call Main.CloseCS(CS)
     End If
         
     Exit Sub
